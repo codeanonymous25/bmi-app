@@ -11,7 +11,7 @@ checkout scm
 
     stage("Deployment") {
         sh '''
-	helm uninstall bmi-app-release || echo "Release not found, skipping uninstall"
+	
         helm install bmi-app-release bmi-app
         '''
     }
@@ -50,6 +50,7 @@ checkout scm
                
                 sh '''
                 echo "Everything is working correct!"
+				helm uninstall bmi-app-release || echo "Release not found, skipping uninstall"
                 '''
             } else {
                 echo "Build failed — skipping downstream job."
@@ -57,3 +58,4 @@ checkout scm
         }
     }
 }
+
