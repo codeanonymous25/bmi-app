@@ -51,11 +51,16 @@ checkout scm
                 sh '''
                 echo "Everything is working correct!"
 				helm uninstall bmi-app-release || echo "Release not found, skipping uninstall"
+				
                 '''
             } else {
                 echo "Build failed — skipping downstream job."
             }
         }
     }
+	stage("Another job"){
+		build job: "bmi-app deployment"
+	}
 }
+
 
