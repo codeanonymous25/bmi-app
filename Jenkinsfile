@@ -25,7 +25,7 @@ checkout scm
 
     stage("Testing") {
         script {
-            def podStatus = sh(script: "kubectl get pods | grep bmi-app | grep Running", returnStatus: true)
+            def podStatus = sh(script: "kubectl get pods | grep ".*bmi-app.*" | grep Running", returnStatus: true)
             if (podStatus == 0) {
                 currentBuild.result = "SUCCESS"
             } else {
