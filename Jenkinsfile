@@ -1,49 +1,59 @@
-pipeline {
-    agent any
+node {
+    stage("Cloning") {
+checkout scm    
+}
 
-    environment {
-        DOCKER_IMAGE = "codeanonymous25/bmi-app"
-        DOCKER_TAG = "latest"
-        DOCKER_CREDENTIALS_ID = "docker-hub-creds" // Set this in Jenkins credentials
+    stage("Building") {
+        sh '''
+        docker build -t bmi-app:01 .
+        '''
     }
 
-    stages {
-        stage('Checkout') {
-            steps {
-                checkout scm
-            }
-        }
+    stage("Deployment") {
+        sh '''
+	helm uninstall bmi-app-release || echo "Release not found, skipping uninstall"
+        helm install bmi-app-release bmi-app
+        '''
+    }
 
-        stage('Build Docker Image') {
-            steps {
-                sh 'docker build -t $DOCKER_IMAGE:$DOCKER_TAG .'
-            }
-        }
+    stage("Pods") {
+        sh '''
+        kubectl get pods
+        sleep 10
+        '''
+    }
 
-        stage('Push to Docker Hub') {
-            steps {
-                withCredentials([usernamePassword(credentialsId: "${DOCKER_CREDENTIALS_ID}", usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                    sh '''
-                        echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
-                        docker push $DOCKER_IMAGE:$DOCKER_TAG
-                    '''
-                }
-            }
-        }
-
-        stage('Post Build Info') {
-            steps {
-                echo "Docker image $DOCKER_IMAGE:$DOCKER_TAG pushed successfully."
+    stage("Testing") {
+        script {
+            def podStatus = sh(script: "kubectl get pods | grep bmi-app | grep Running", returnStatus: true)
+            if (podStatus == 0) {
+                currentBuild.result = "SUCCESS"
+            } else {
+                currentBuild.result = "FAILURE"
             }
         }
     }
 
-    post {
-        success {
-            echo "✅ Build and push completed successfully."
+    stage("Approval") {
+        script {
+            if (env.CHANGE_ID && (currentBuild.result == "SUCCESS" || currentBuild.result == null)) {
+                input message: "Everything correct, do you want to merge?", ok: "Merge"
+            }
         }
-        failure {
-            echo "❌ Build or push failed."
+    }
+
+    stage("Done") {
+        script {
+            if (currentBuild.result == "SUCCESS" || currentBuild.result == null) {
+		
+
+               
+                sh '''
+                echo "Everything is working correct!"
+                '''
+            } else {
+                echo "Build failed — skipping downstream job."
+            }
         }
     }
 }
