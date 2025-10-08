@@ -1,0 +1,8 @@
+replicaCount: 1
+image:
+  repository: bmi-app
+  pullPolicy: Never
+  tag: "01"
+service:
+  type: NodePort
+  port: 5000
