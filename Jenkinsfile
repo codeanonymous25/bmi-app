@@ -12,7 +12,12 @@ checkout scm
     stage("Deployment") {
         sh '''
 	
+         if kubectl get pods | grep -i "Running"; then
+        echo "Pods are already running — skipping Helm install"
+    else
+        echo "No running pods — installing Helm chart"
         helm install bmi-app-release bmi-app
+    fi
         '''
     }
 
@@ -62,5 +67,6 @@ checkout scm
 		build job: "bmi-app deployment"
 	}
 }
+
 
 
