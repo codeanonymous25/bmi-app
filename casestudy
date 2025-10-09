@@ -1,0 +1,118 @@
+CI/CD on Kubernetes (Local Setup)**
+
+ **Step 1:
+    End-to-End CI/CD Pipeline on Kubernetes (Local Setup)
+- **Subtitle**: Powered by Jenkins, Docker, Helm, GitHub, Jira, and Minikube
+- **Presented by**: Aman Prajapati
+
+
+ **Step 2: Project Overview**
+- **Objective**: Automate CI/CD for a Python/Java app using local tools
+- **Tools Used**:
+  - Jenkins (Docker container on WSL)
+  - Docker (local image registry)
+  - Minikube (local Kubernetes cluster)
+  - Helm Charts (GitHub Pages-hosted)
+  - GitHub (source control + PR triggers)
+  - Jira (issue tracking + build/deploy status updates)
+
+---
+
+ **Step 3: Architecture Diagram**
+- Visual flow:
+  - Developer pushes code → GitHub PR → Jenkins Multibranch Pipeline → Build → Notify GitHub
+  - Merge → Jenkins Single Branch Pipeline → Docker Build → Helm Deploy to Minikube → Notify Jira
+
+*(Let me know if you'd like a visual diagram generated for this slide.)*
+
+---
+
+ **Step 4: CI Workflow (Multibranch Pipeline)**
+- **Trigger**: GitHub Pull Request
+- **Steps**:
+  1. Jenkins detects PR via webhook
+  2. Multibranch pipeline runs build/test
+  3. If successful:
+     - GitHub notified (PR ready to merge)
+     - No auto-merge (manual control retained)
+- **Configuration**:
+  - GitHub webhook setup
+  - Jenkinsfile with `when` conditions for PR branches
+  - Docker-based Jenkins slave used for builds
+
+---
+
+ **Step 5: CD Workflow (Single Branch Pipeline)**
+- **Trigger**: Merge to main/deploy branch
+- **Steps**:
+  1. Jenkins builds Docker image (locally)
+  2. Helm chart used to deploy to Minikube
+  3. Jira story updated with deployment status
+- **Configuration**:
+  - Separate Jenkinsfile for deployment
+  - Helm repo hosted on GitHub Pages
+  - Jira integration via Jenkins plugin or REST API
+
+---
+
+ **Step 6: Jenkins Setup**
+- **Environment**:
+  - Jenkins container on WSL via Docker Compose
+  - Docker, Minikube, kubectl, Helm installed inside Jenkins container
+- **Key Configs**:
+  - Docker-in-Docker setup
+  - Jenkins plugins: GitHub, Jira, Kubernetes CLI, Docker
+  - Multibranch pipeline setup with GitHub credentials
+
+---
+
+ **Step 7: Docker & Image Management**
+- **Local Registry**:
+  - No Docker Hub used
+  - Images built and stored locally
+- **Dockerfile**:
+  - Base image: Python/Java
+  - App + dependencies
+- **Build Strategy**:
+  - Jenkins builds image inside container
+  - Image tagged and used by Helm for deployment
+
+---
+
+ **Step 8: Kubernetes & Minikube**
+- **Cluster**: Minikube (local)
+- **Deployment**:
+  - Helm charts define K8s resources
+  - Jenkins triggers `helm upgrade --install`
+- **Validation**:
+  - `kubectl get pods/services` used for verification
+  - Logs and health checks monitored
+
+---
+
+ **Step 9: Helm Charts**
+- **Repo**: GitHub Pages-hosted
+- **Structure**:
+  - `Chart.yaml`, `values.yaml`, templates
+- **Usage**:
+  - Jenkins pulls chart
+  - Injects image tag and env variables
+  - Deploys to Minikube
+
+---
+
+ **Step 10: Jira Integration**
+- **Purpose**: Track build and deployment status
+- **Method**:
+  - Jenkins plugin or REST API
+  - Story ID extracted from branch name or commit message
+  - Status updated post-build and post-deploy
+
+---
+
+ **Step 11: End-to-End Workflow Summary**
+- Developer → GitHub → Jenkins CI → GitHub PR status
+- Merge → Jenkins CD → Docker Build → Helm Deploy → Jira Update
+- All operations local: No cloud, no EC2
+
+
