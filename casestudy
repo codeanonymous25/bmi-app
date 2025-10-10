@@ -15,6 +15,7 @@ CI/CD on Kubernetes (Local Setup)**
   - Helm Charts (GitHub Pages-hosted)
   - GitHub (source control + PR triggers)
   - Jira (issue tracking + build/deploy status updates)
+  - Sonarqube (checks the quality of code, debug, security)
 
 ---
 
