@@ -1,7 +1,16 @@
 node {
     stage("Cloning") {
 checkout scm    
-}
+
+	withSonarQubeEnv('Sonar') {
+            dir('bmi-chart') {
+                sh "sonar-scanner " +
+                   "-Dsonar.projectKey=bmi-app-project " +
+                   "-Dsonar.sources=. " +
+                   "-Dsonar.host.url=http://localhost:9000"
+            }
+        }
+	}
 
     stage("Building") {
         sh '''
@@ -67,6 +76,7 @@ checkout scm
 		build job: "bmi-app deployment"
 	}
 }
+
 
 
 
