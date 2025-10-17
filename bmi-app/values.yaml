@@ -1,7 +1,7 @@
 replicaCount: 1
 image:
-  repository: bmi-app
-  pullPolicy: Never
+  repository: aman932/bmi-app
+  pullPolicy: IfNotPresent
   tag: "01"
 service:
   type: NodePort
