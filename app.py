@@ -4,6 +4,11 @@ from prometheus_flask_exporter import PrometheusMetrics
 app = Flask(__name__)
 metrics = PrometheusMetrics(app)
 
+# Explicitly expose /metrics
+@app.route('/metrics')
+def metrics_endpoint():
+    return metrics.export_metrics()
+
 @app.route('/', methods=['GET', 'POST'])
 def index():
     bmi = None
