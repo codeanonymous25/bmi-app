@@ -2,12 +2,11 @@ from flask import Flask, render_template, request
 from prometheus_flask_exporter import PrometheusMetrics
 
 app = Flask(__name__)
-metrics = PrometheusMetrics(app)
 
-# Explicitly expose /metrics
-@app.route('/metrics')
-def metrics_endpoint():
-    return metrics.export_metrics()
+# Initialize Prometheus metrics
+metrics = PrometheusMetrics(app)
+# Optionally, you can set a custom endpoint name if you prefer:
+# metrics = PrometheusMetrics(app, path='/metrics')
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -30,4 +29,4 @@ def index():
     return render_template('index.html', bmi=bmi, category=category)
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000, host='0.0.0.0')
+    app.run(host='0.0.0.0', port=5000, debug=True)
